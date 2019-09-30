@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head"></head>
+<body style="background-color: #e1e5ff;">
+	<nav th:replace="layout :: header"></nav>
+
+	<div class="container" style="margin-top: 80px;">
+		<div align="center">
+			<h1>Product management</h1>
+
+			<div th:if="${success}"
+				class="row alert alert-success alert-dismissible">
+				<button type="button" class="close" data-dismiss="alert"
+					aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+				<span th:text="${success}"></span>
+			</div>
+
+			<!-- Search form -->
+			<div class="row justify-content-between">
+				<div class="col-7">
+					<form action="#" th:action="@{/product/search/}" method="get">
+						<div class="buscar-caja">
+							<input type="text" name="name" class="buscar-txt"
+								placeholder="Search..." /> <a class="buscar-btn" type="submit">
+								<i class="fa fa-search"></i>
+							</a>
+						</div>
+					</form>
+				</div>
+				<div class="col-4">
+					<a th:href="@{/product/new}" class="btn btn-success"> <span
+						class="fa fa-plus"></span>
+					</a>
+				</div>
+			</div>
+		</div>
+		<th:block th:if="${#lists.isEmpty(listProducts)}">
+			<h3>No employee</h3>
+		</th:block>
+
+		<br />
+
+		<th:block th:unless="${#lists.isEmpty(listProducts)}">
+			<div class="row">
+				<table class="table">
+					<thead class="thead-dark">
+						<tr>
+							<th>Product ID</th>
+							<th>Name</th>
+							<th>Quantity</th>
+							<th>Price</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="product : ${listProducts}">
+							<td th:text="${product.id}">Product ID</td>
+							<td th:text="${product.name}">Name</td>
+							<td th:text="${product.quantity}">Brand</td>
+							<td th:text="${product.price}">Price</td>
+							<td>
+								<div align="center">
+									<a th:href="@{'/product/' + ${product.id}}"> <i
+										class="fa fa-eye"></i></a> &nbsp;&nbsp;&nbsp; <a
+										th:href="@{'/product/edit/' + ${product.id}}"><i
+										class="fa fa-edit"></i></a> &nbsp;&nbsp;&nbsp; <a
+										th:href="@{'/product/delete/' + ${product.id}}"><i
+										class="fa fa-trash"></i></a> &nbsp;&nbsp;&nbsp;<a
+										th:href="@{|/addProduct?id=${product.id}|}">AddOrder</a>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<hr />
+				<div class="row">
+					<ul class="nav nav-pills">
+						<li class="nav-item"
+							th:each="i: ${#numbers.sequence(0,listProducts.totalPages-1)}"><a
+							th:href="@{/product/(page=${i})}" th:text="${i}" class="nav-link"
+							th:classappend="${currentPage}==${i}?'active':''"></a></li>
+					</ul>
+
+					<a th:href="@{/export}" target="_blank" class="btn btn-outline-secondary" style="margin-left: 900px;">Export to PDF</a>
+				</div>
+			</div>
+
+			<!-- <ul class="pagination">
+				<li
+					th:class="${currentIndex == 1}? 'page-item disabled' : 'page-item'">
+					<a class="page-link" th:href="@{/product}">First</a>
+				</li>
+				<li
+					th:class="${currentIndex == 1}? 'page-item disabled': 'page-item' ">
+					<a class="page-link" aria-label="Previous"
+					th:href="@{|${baseUrl}${currentIndex - 1}|}"
+					title='Go to previous page'><span aria-hidden="true">«</span> <span
+						class="sr-only">Previous</span></a>
+				</li>
+				<li th:each="item : ${#numbers.sequence(beginIndex,endIndex)}"
+					th:class="${item == currentIndex ? 'page-item active' :'page-item' }">
+					<a class="page-link" th:href="@{|${baseUrl}${item}|}"> <span
+						th:text='${item}'>1</span>
+				</a>
+				</li>
+				<li
+					th:class="${currentIndex == totalPageCount}? 'page-item disabled': 'page-item'">
+					<a class="page-link" aria-label="Next"
+					th:href="@{|${baseUrl}${currentIndex + 1}|}"
+					title='Go to next page'><span aria-hidden="true">»</span> <span
+						class="sr-only">Next</span></a>
+				</li>
+				<li
+					th:class="${currentIndex == totalPageCount}? 'page-item disabled':'page-item'">
+					<a class="page-link" th:href="@{|${baseUrl}${totalPageCount}|}">Last</a>
+				</li>
+			</ul> -->
+		</th:block>
+	</div>
+
+	<footer th:replace="layout :: footer"></footer>
+</body>
+</html>

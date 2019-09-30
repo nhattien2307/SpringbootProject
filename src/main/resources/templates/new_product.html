@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<title>Create New Product</title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="background-color: #ededed;">
+	<div style="background-color: #337ab7; height: 50px;"></div>
+	<div class="container-fluid">
+		<div class="row col-lg-4 col-lg-offset-4"
+			style="margin-top: 45px; background-color: #fff; padding: 20px; border: solid 1px #ddd;">
+			<h1>Create new Product</h1>
+			<br />
+			<form action="#" th:action="@{/product/save}" th:object="${product}"
+				method="post" onsubmit="return(validate());">
+
+				<div class="form-group">
+					<label class="control-label">Product Name:</label> <input
+						type="text" th:field="*{name}" class="form-control" required />
+				</div>
+				<div class="form-group">
+					<label class="control-label">Quantity:</label> <input type="text"
+						id="numb" th:field="*{quantity}" class="form-control" required />
+				</div>
+				<div class="form-group">
+					<label class="control-label">Price:</label> <input type="text"
+						th:field="*{price}" class="form-control" required />
+				</div>
+				<button type="submit" class="btn btn-success">Save</button>
+				<button type="reset" th:href="@{/product}" class="btn">Cancel</button>
+			</form>
+		</div>
+	</div>
+	<script>
+		function validate() {
+		  var x, text;
+		
+		  // Get the value of the input field with id="numb"
+		  x = document.getElementById("numb").value;
+		
+		  // If x is Not a Number or less than one or greater than 10
+		  if (isNaN(x) || x < 0 || x > 100000000) {
+		    alert( "Quantity number must be a number greater than 0 and less than 100000000" );
+		    return false;
+		  }
+		  return true;
+		}
+	</script>
+</body>
+</html>

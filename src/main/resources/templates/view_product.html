@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head"></head>
+<body style="background-color: #e1e5ff;">
+	<nav th:replace="layout :: header"></nav>
+
+	<div class="container" style="margin-top: 80px;">
+		<div align="left">
+			<h1>Product <span th:text = "${pro.id}"></span></h1>
+			<h3>Name: <span th:text="${pro.name}"></span></h3>
+			<h3>Quantity: <span th:text="${pro.quantity}"></span></h3>
+			<h3>Price: <span th:text="${pro.price}"></span></h3>
+		</div>
+	</div>
+
+	<footer th:replace="layout :: footer"></footer>
+</body>
+</html>

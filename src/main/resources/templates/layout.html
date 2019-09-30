@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spring project</title>
+<link rel="stylesheet"
+	href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+	integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+	crossorigin="anonymous">
+<!-- Bootstrap -->
+<link
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}"
+	rel="stylesheet" />
+<!-- font-awesome -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+<link
+	href="https://fonts.googleapis.com/css?family=Dancing+Script|Itim|Lobster|Montserrat:500|Noto+Serif|Nunito|Patrick+Hand|Roboto+Mono:100,100i,300,300i,400,400i,500,500i,700,700i|Roboto+Slab|Saira"
+	rel="stylesheet">
+<!-- Custom style -->
+<link href="../static/css/style.css" th:href="@{/css/style.css}"
+	rel="stylesheet" />
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+	th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+	th:src="@{/webjars/bootstrap/4.3.1/js/bootstrap.min.js}"></script>
+</head>
+<body>
+	<nav th:fragment="header"
+		class="navbar navbar-dark bg-dark justify-content-between fixed-top">
+		<a th:href="@{/product/}" class="navbar-brand" style="color: white;"><i
+			class="fa fa-fw fa-home"></i>Home</a>
+
+		<form th:action="@{/j_spring_security_logout}" method="post">
+			<input type="submit" value="Logout" class="btn btn-outline-success"/>
+		</form>
+	</nav>
+
+	<h1>Main content</h1>
+
+	<footer th:fragment="footer" id="sticky-footer"
+		class="py-4 bg-dark text-white-50">
+		<div class="container text-center">
+			<small>Design by &copy; NhatTien</small>
+		</div>
+	</footer>
+</body>
+</html>
