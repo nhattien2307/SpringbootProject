@@ -17,7 +17,7 @@
 	<pageHeader>
 		<band height="52" splitType="Stretch">
 			<staticText>
-				<reportElement x="210" y="10" width="150" height="30" uuid="9ede0423-4a96-49df-b91f-eefb3c102367"/>
+				<reportElement x="210" y="10" width="150" height="30" forecolor="#FF0400" backcolor="#E3E3E3" uuid="9ede0423-4a96-49df-b91f-eefb3c102367"/>
 				<textElement>
 					<font size="22"/>
 				</textElement>
