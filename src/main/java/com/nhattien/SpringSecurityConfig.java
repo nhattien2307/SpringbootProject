@@ -13,16 +13,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
         auth.inMemoryAuthentication()
-                .withUser("user").password("{noop}password").roles("USER")
+                .withUser("user").password("{noop}user").roles("USER")
                 .and()
-                .withUser("admin").password("{noop}password").roles("USER", "ADMIN");
+                .withUser("admin").password("{noop}admin").roles("USER", "ADMIN");
 
     }
 
     // Secure the endpoins with HTTP Basic authentication
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-    	http.authorizeRequests().antMatchers("/product/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')");
+    	http.authorizeRequests().antMatchers("/product/**").access("hasRole('ADMIN') or hasRole('USER')");
     	http.rememberMe().key("uniqueAndSecret").tokenValiditySeconds(1296000);
         http.authorizeRequests()
                 .and()

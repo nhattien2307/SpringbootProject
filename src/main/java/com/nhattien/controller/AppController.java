@@ -30,7 +30,6 @@ import com.nhattien.service.OrderService;
 import com.nhattien.service.ProductService;
 import com.nhattien.untils.Utils;
 
-import net.sf.jasperreports.engine.DefaultJasperReportsContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -38,9 +37,6 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.export.HtmlExporter;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
 
 @Controller
 public class AppController {
@@ -52,10 +48,17 @@ public class AppController {
 	private OrderService serviceOrder;
 
 	@RequestMapping(value = { "/", "/login" })
-	public String login() {
-		return "login";
-	}
-
+	public String login(@RequestParam(required = false) String message, final Model model) {
+	    if (message != null && !message.isEmpty()) {
+	      if (message.equals("logout")) {
+	        model.addAttribute("message", "You have successfully logged out");
+	      }
+	      if (message.equals("error")) {
+	        model.addAttribute("message", "Username or password is incorrect");
+	      }
+	    }
+	    return "login";
+	  }
 	@RequestMapping("/product/search")
 	public String search(@RequestParam(defaultValue = "") String name, Model model) {
 		model.addAttribute("listProducts", service.search(name));
