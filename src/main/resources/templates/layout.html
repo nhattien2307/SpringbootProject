@@ -23,12 +23,17 @@
 <!-- Custom style -->
 <link href="../static/css/style.css" th:href="@{/css/style.css}"
 	rel="stylesheet" />
+<link rel="stylesheet"
+	href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
 	th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>
-
+<script
+	src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js">
+	
+</script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script
 	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
@@ -44,18 +49,18 @@
 			class="fa fa-fw fa-user " th:utext="${#request.userPrincipal.name}"></i></a> -->
 
 		<!-- Dropdown -->
-		<div class="nav-item dropdown"><a class="nav-link dropdown-toggle" th:utext="${#request.userPrincipal.name}"
-			href="#" id="navbardrop" data-toggle="dropdown" style="color: white; margin-right: 1000px;"></a>
+		<div class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle"
+				th:utext="${#request.userPrincipal.name}" href="#" id="navbardrop"
+				data-toggle="dropdown" style="color: white; margin-right: 1150px;"></a>
 			<div class="dropdown-menu">
-				<a class="dropdown-item" href="#">Profile</a>
-				<a class="dropdown-item" href="#">Change Password</a>
+				<a class="dropdown-item" href="#">Profile</a> <a
+					class="dropdown-item" href="#">Change Password</a>
 			</div>
 		</div>
 
 		<form th:action="@{/j_spring_security_logout}" method="post">
-			<input type="hidden" th:name="${_csrf.parameterName}"
-				th:value="${_csrf.token}" /> <input type="submit" value="Logout"
-				class="btn btn-outline-success" />
+			<input type="submit" value="Logout" class="btn btn-outline-success" />
 		</form>
 	</nav>
 

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -13,6 +14,7 @@ import com.nhattien.service.MyUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	MyUserDetailsService userDetailsService;
@@ -48,11 +50,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests().antMatchers("/product/**").access("hasRole('ADMIN') or hasRole('USER')");
 		http.rememberMe().key("uniqueAndSecret").tokenValiditySeconds(1296000);
+		http.authorizeRequests().and().exceptionHandling().accessDeniedPage("/403");
 		http.authorizeRequests().and().formLogin().loginProcessingUrl("/j_spring_security_login").loginPage("/login")
 				.defaultSuccessUrl("/product").failureUrl("/login?message=error").usernameParameter("username").passwordParameter("password")
 				.and().logout()
-				.logoutUrl("/j_spring_security_logout").logoutSuccessUrl("/login?message=logout");
-
+				.logoutUrl("/j_spring_security_logout").logoutSuccessUrl("/login?message=logout")
+				.and().csrf().disable();
 	}
 
 }

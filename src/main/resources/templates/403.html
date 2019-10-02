@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head"></head>
+<body style="background-color: #e1e5ff;">
+	<nav th:replace="layout :: header"></nav>
+
+	<div class="container" style="margin-top: 80px;">
+		<h1 align="center">Access Denied Page - 403</h1>
+		<h3>
+			Sorry <span
+				th:utext="${#request.userPrincipal.name} + ' - you do not have permission to access this page'"></span>
+		</h3>
+		<a th:href="@{/product/}" class="btn btn-outline-dark">Back</a>
+	</div>
+
+	<footer th:replace="layout :: footer"></footer>
+</body>
+</html>
