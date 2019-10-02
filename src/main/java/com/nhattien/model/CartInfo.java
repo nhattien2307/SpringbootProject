@@ -15,11 +15,13 @@ public class CartInfo {
 	}
 
 	private CartLineInfo findLineById(int id) {
-		for (CartLineInfo line : this.cartLines) {
-			/*
-			 * if (line.getProductInfo().getId().equals(id)) { return line; }
-			 */
-		}
+		/*
+		 * for (CartLineInfo line : this.cartLines) {
+		 * 
+		 * if (line.getProductInfo().getId().equals(id)) { return line; }
+		 * 
+		 * }
+		 */
 		return null;
 	}
 

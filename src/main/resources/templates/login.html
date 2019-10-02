@@ -12,7 +12,7 @@
 					<fieldset>
 						<h1>Please Sign In</h1>
 						<p th:text="${message}" style="color: red;"></p>
-
+						<p th:text="${successMessage}" style="color: red;"></p>
 						<div class="form-group">
 							<input type="text" name="username" id="username"
 								class="form-control input-lg" placeholder="UserName"
@@ -33,7 +33,10 @@
 								<input type="submit" name="submit" class="btn btn-lg btn-primary btn-block"
 									value="Sign In" />
 							</div>
-							<div class="col-xs-6 col-sm-6 col-md-6"></div>
+							<div class="col-xs-6 col-sm-6 col-md-6">
+								<a th:href="@{/register/}">Create a new account?</a>
+							</div>
+							
 						</div>
 					</fieldset>
 					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />

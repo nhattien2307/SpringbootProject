@@ -5,29 +5,42 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.nhattien.entities.Order;
 import com.nhattien.entities.Product;
+import com.nhattien.entities.User;
+import com.nhattien.model.AjaxResponseBody;
 import com.nhattien.model.CartInfo;
 import com.nhattien.model.ProductInfo;
+import com.nhattien.model.SearchCriteria;
 import com.nhattien.service.OrderService;
 import com.nhattien.service.ProductService;
+import com.nhattien.service.UserService;
 import com.nhattien.untils.Utils;
 
 import net.sf.jasperreports.engine.JRException;
@@ -45,24 +58,84 @@ public class AppController {
 	private ProductService service;
 
 	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private OrderService serviceOrder;
 
 	@RequestMapping(value = { "/", "/login" })
 	public String login(@RequestParam(required = false) String message, final Model model) {
-	    if (message != null && !message.isEmpty()) {
-	      if (message.equals("logout")) {
-	        model.addAttribute("message", "You have successfully logged out");
-	      }
-	      if (message.equals("error")) {
-	        model.addAttribute("message", "Username or password is incorrect");
-	      }
-	    }
-	    return "login";
-	  }
+		if (message != null && !message.isEmpty()) {
+			if (message.equals("logout")) {
+				model.addAttribute("message", "You have successfully logged out");
+			}
+			if (message.equals("error")) {
+				model.addAttribute("message", "Username or password is incorrect");
+			}
+		}
+		return "login";
+	}
+
+	@RequestMapping(value = "/register", method = RequestMethod.GET)
+	public ModelAndView register() {
+		ModelAndView modelAndView = new ModelAndView();
+		User user = new User();
+		modelAndView.addObject("user", user);
+		modelAndView.setViewName("register"); // resources/template/register.html
+		return modelAndView;
+	}
+
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	public ModelAndView registerUser(@Valid User user, BindingResult bindingResult, ModelMap modelMap) {
+		ModelAndView modelAndView = new ModelAndView();
+		// Check for the validations
+		if (bindingResult.hasErrors()) {
+			modelAndView.addObject("successMessage", "Please correct the errors in form!");
+			modelMap.addAttribute("bindingResult", bindingResult);
+		} else if (userService.isUserAlreadyPresent(user)) {
+			modelAndView.addObject("successMessage", "user already exists!");
+		}
+		// we will save the user if, no binding errors
+		else {
+			userService.saveUser(user);
+			modelAndView.addObject("successMessage", "User is registered successfully!");
+		}
+		modelAndView.addObject("user", new User());
+		modelAndView.setViewName("redirect:/login");
+		return modelAndView;
+	}
+
+	@RequestMapping("/users")
+	public String showUser(Model model) {
+		List<User> users = userService.findAll();
+		model.addAttribute("listUsers", users);
+		return "list_user";
+	}
+
 	@RequestMapping("/product/search")
-	public String search(@RequestParam(defaultValue = "") String name, Model model) {
-		model.addAttribute("listProducts", service.search(name));
-		return "list_product";
+	@ResponseBody
+	public ResponseEntity<?> getSearchResultViaAjax(@Valid @RequestBody SearchCriteria search, Errors errors) {
+		AjaxResponseBody result = new AjaxResponseBody();
+
+		// If error, just return a 400 bad request, along with the error message
+		if (errors.hasErrors()) {
+
+			result.setMsg(
+					errors.getAllErrors().stream().map(x -> x.getDefaultMessage()).collect(Collectors.joining(",")));
+
+			return ResponseEntity.badRequest().body(result);
+
+		}
+
+		List<Product> products = service.search(search.getName());
+		if (products.isEmpty()) {
+			result.setMsg("No Product found!");
+		} else {
+			result.setMsg("success");
+		}
+		result.setResult(products);
+
+		return ResponseEntity.ok(result);
 	}
 
 	@RequestMapping("/product")
@@ -99,6 +172,7 @@ public class AppController {
 		return "redirect:/product";
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping("/product/edit/{id}")
 	public ModelAndView showEditProductPage(@PathVariable(name = "id") int id) {
 		ModelAndView mav = new ModelAndView("edit_product");
@@ -108,11 +182,10 @@ public class AppController {
 		return mav;
 	}
 
-	@RequestMapping("/product/delete/{id}")
-	public String deleteProduct(@PathVariable(name = "id") int id, RedirectAttributes redirect) {
-		service.delete(id);
-		redirect.addFlashAttribute("success", "Deleted successfully!");
-		return "redirect:/product";
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/product/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody String deleteProduct(@PathVariable int id) {
+		return service.delete(id);
 	}
 
 	@RequestMapping("/order")
@@ -213,5 +286,10 @@ public class AppController {
 		 * SimpleHtmlExporterOutput(response.getWriter())); htmlExporter.exportReport();
 		 */
 		JasperExportManager.exportReportToPdfStream(jasperPrint, out);
+	}
+
+	@RequestMapping("/403")
+	public String accessDenied() {
+		return "403";
 	}
 }

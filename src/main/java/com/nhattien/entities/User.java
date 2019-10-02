@@ -1,10 +1,13 @@
 package com.nhattien.entities;
 
 import static javax.persistence.GenerationType.IDENTITY;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Entity
@@ -64,7 +68,7 @@ public class User implements java.io.Serializable {
   public void setEnabled(final Boolean enabled) {
     this.enabled = enabled;
   }
-  @OneToMany(fetch = FetchType.EAGER, mappedBy = "users")
+  @OneToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = CascadeType.ALL)
   public Set<UsersRoles> getUsersRoleses() {
     return this.usersRoleses;
   }

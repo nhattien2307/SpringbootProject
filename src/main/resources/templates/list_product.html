@@ -18,14 +18,16 @@
 				<span th:text="${success}"></span>
 			</div>
 
+			<!-- <div id="feedback"></div> -->
+
 			<!-- Search form -->
 			<div class="row justify-content-between">
 				<div class="col-7">
-					<form action="#" th:action="@{/product/search/}" method="get">
+					<form id="search-form">
 						<div class="buscar-caja">
-							<input type="text" name="name" class="buscar-txt"
-								placeholder="Search..." /> <a class="buscar-btn" type="submit">
-								<i class="fa fa-search"></i>
+							<input type="text" name="name" id="name" class="buscar-txt"
+								placeholder="Search..." /> <a class="buscar-btn" type="submit"
+								id="bth-search"> <i class="fa fa-search"></i>
 							</a>
 						</div>
 					</form>
@@ -55,8 +57,8 @@
 							<th>Actions</th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr th:each="product : ${listProducts}">
+					<tbody id="feedback">
+						<tr th:id="${product.id}" th:each="product : ${listProducts}">
 							<td th:text="${product.id}">Product ID</td>
 							<td th:text="${product.name}">Name</td>
 							<td th:text="${product.quantity}">Brand</td>
@@ -64,12 +66,12 @@
 							<td>
 								<div align="center">
 									<a th:href="@{'/product/' + ${product.id}}"> <i
-										class="fa fa-eye"></i></a> &nbsp;&nbsp;&nbsp; <a
+										class="fa fa-info-circle" style="font-size:30px;color:green;"></i></a> &nbsp;&nbsp;&nbsp; <a
 										th:href="@{'/product/edit/' + ${product.id}}"><i
-										class="fa fa-edit"></i></a> &nbsp;&nbsp;&nbsp; <a
-										th:href="@{'/product/delete/' + ${product.id}}"><i
-										class="fa fa-trash"></i></a> &nbsp;&nbsp;&nbsp;<a
-										th:href="@{|/addProduct?id=${product.id}|}">AddOrder</a>
+										class="fa fa-edit" style="font-size:30px;color:blue;"></i></a> &nbsp;&nbsp;&nbsp; 
+									<a	th:onclick="'deleteData(\'' + ${product.id}+ '\')'"><i class="fa fa-trash" style="font-size:30px;color:red;"></i></a> &nbsp;&nbsp;&nbsp;<a
+										th:href="@{|/addProduct?id=${product.id}|}">AddOrder
+									</a>
 								</div>
 							</td>
 						</tr>
@@ -82,11 +84,13 @@
 						<li class="nav-item"
 							th:each="i: ${#numbers.sequence(0,listProducts.totalPages-1)}"><a
 							th:href="@{/product/(page=${i})}" th:text="${i}" class="nav-link"
-							th:classappend="${currentPage}==${i}?'active':''"></a></li>
+							th:classappend="${currentPage}==${i}?'active':''"></a>
+						</li>
 					</ul>
 
-					<a th:href="@{/export}" target="_blank" class="btn btn-outline-secondary" style="margin-left: 900px;"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-					  Export to PDF</a>
+					<a th:href="@{/export}" target="_blank"
+						class="btn btn-outline-secondary" style="margin-left: 900px;"><i
+						class="fa fa-file-pdf-o" style="color:orange;" aria-hidden="true"></i> Export to PDF</a>
 				</div>
 			</div>
 
@@ -94,5 +98,83 @@
 	</div>
 
 	<footer th:replace="layout :: footer"></footer>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+
+			$("#search-form").submit(function(event) {
+
+				//stop submit the form, we will post it manually.
+				event.preventDefault();
+
+				fire_ajax_submit();
+
+			});
+
+		});
+
+		function fire_ajax_submit() {
+
+			var search = {}
+			search["name"] = $("#name").val();
+
+			$("#btn-search").prop("disabled", true);
+
+			$.ajax({
+				type : "POST",
+				contentType : "application/json",
+				url : "/product/search",
+				data : JSON.stringify(search),
+				dataType : 'json',
+				cache : false,
+				timeout : 600000,
+				success : function(data) {
+					json = "";
+					$.each(data.result, function(k, v){
+						json += "<tr>"
+							+ "<td>" + v.id + "</td>"
+							+ "<td>" + v.name + "</td>"
+							+ "<td>" + v.quantity + "</td>"
+							+ "<td>" + v.price + "</td>"
+							+ "</tr>";
+ 					});
+					
+					$('#feedback').html(json);
+
+					console.log("SUCCESS : ", data);
+					$("#btn-search").prop("disabled", false);
+
+				},
+				error : function(e) {
+
+					$('#feedback').html(json);
+
+					console.log("ERROR : ", e);
+					$("#btn-search").prop("disabled", false);
+
+				}
+			});
+
+		}
+		
+		function deleteData(id) {	
+			if(confirm("Are you sure you want to delete this?")){
+				$.ajax({
+					type : "GET",
+					url : "/product/delete/"+id,
+					success : function(data) {
+						toastr.success(data.message);
+						$('tr#'+id+'').remove();
+					},
+					error : function(e) {
+						alert("Sorry! you are not allowed to delete it",e);
+					}
+				});
+			} else {
+				return false;
+			}
+		}
+	</script>
+
 </body>
 </html>

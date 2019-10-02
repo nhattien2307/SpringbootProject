@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -40,8 +42,19 @@ public class ProductService {
 		return new ProductInfo(product.getId(), product.getName(), product.getQuantity(), product.getPrice());
 	}
 
-	public void delete(int id) {
-		repo.deleteById(id);
+	/*
+	 * public void delete(int id) { repo.deleteById(id); }
+	 */
+	
+	public String delete(int id) {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			repo.deleteById(id);
+			jsonObject.put("message", "Deleted Successfully.");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return jsonObject.toString();
 	}
 
 	public List<Product> search(String name) {

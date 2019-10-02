@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head"></head>
+<body style="background-color: #e1e5ff;">
+	<div class="container">
+
+		<div class="row" style="margin-top: 60px; margin-left: 300px;">
+			<div
+				class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
+				<form autocomplete="off" action="#" th:action="@{/register}"
+					th:object="${user}" method="post">
+					<fieldset>
+						<h1>Registration Form</h1>
+						<p th:text="${successMessage}" style="color: red;"></p>
+
+						<div class="form-group">
+							<input type="text" th:field="*{username}" id="username"
+								class="form-control input-lg" placeholder="UserName" required />
+						</div>
+						<div class="form-group">
+							<input type="password" th:field="*{password}" id="password"
+								class="form-control input-lg" placeholder="Password" required />
+						</div>
+
+						<div class="row">
+							<div class="col-xs-6 col-sm-6 col-md-6">
+								<input type="submit" name="submit"
+									class="btn btn-lg btn-primary btn-block" value="Register" />
+							</div>
+							<div class="col-xs-6 col-sm-6 col-md-6"></div>
+						</div>
+					</fieldset>
+					<div class="alert alert-success alert-dismissible col-sm-12"
+						th:if="${(bindingResult != null && bindingResult.getAllErrors() != null)}">
+						<button type="button" class="close" data-dismiss="alert"
+							aria-hidden="true">×</button>
+						<ul th:each="data : ${bindingResult.getAllErrors()}">
+							<li
+								th:text="${data.getObjectName() + ' :: ' + data.getDefaultMessage()}"></li>
+						</ul>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
