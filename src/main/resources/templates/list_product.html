@@ -66,12 +66,11 @@
 							<td>
 								<div align="center">
 									<a th:href="@{'/product/' + ${product.id}}"> <i
-										class="fa fa-info-circle" style="font-size:30px;color:green;"></i></a> &nbsp;&nbsp;&nbsp; <a
-										th:href="@{'/product/edit/' + ${product.id}}"><i
+										class="fa fa-info-circle" style="font-size:30px;color:green;"></i></a> &nbsp;&nbsp;&nbsp; 
+									<a th:href="@{'/product/edit/' + ${product.id}}"><i
 										class="fa fa-edit" style="font-size:30px;color:blue;"></i></a> &nbsp;&nbsp;&nbsp; 
-									<a	th:onclick="'deleteData(\'' + ${product.id}+ '\')'"><i class="fa fa-trash" style="font-size:30px;color:red;"></i></a> &nbsp;&nbsp;&nbsp;<a
-										th:href="@{|/addProduct?id=${product.id}|}">AddOrder
-									</a>
+									<a th:onclick="'deleteData(\'' + ${product.id}+ '\')'"><i class="fa fa-trash" style="font-size:30px;color:red;"></i></a> &nbsp;&nbsp;&nbsp;
+									<a th:href="@{'/cart/' + ${product.id}}"><i class="fa fa-shopping-cart" style="font-size:30px;color:purple;"></i></a>
 								</div>
 							</td>
 						</tr>
@@ -89,8 +88,11 @@
 					</ul>
 
 					<a th:href="@{/export}" target="_blank"
-						class="btn btn-outline-secondary" style="margin-left: 900px;"><i
+						class="btn btn-outline-secondary" style="margin-left: 750px;"><i
 						class="fa fa-file-pdf-o" style="color:orange;" aria-hidden="true"></i> Export to PDF</a>
+					<a th:href="@{/order}"
+						class="btn btn-outline-secondary" style="margin-left: 17px;" ><i
+						class="fa fa-list" style="color:orange;" aria-hidden="true"></i> List Orders</a>
 				</div>
 			</div>
 
