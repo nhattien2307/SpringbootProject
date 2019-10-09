@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +34,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.nhattien.entities.Item;
 import com.nhattien.entities.Order;
+import com.nhattien.entities.OrderDetail;
 import com.nhattien.entities.Product;
 import com.nhattien.entities.User;
 import com.nhattien.model.AjaxResponseBody;
-import com.nhattien.model.CartInfo;
-import com.nhattien.model.ProductInfo;
 import com.nhattien.model.SearchCriteria;
+import com.nhattien.service.OrderDetailService;
 import com.nhattien.service.OrderService;
 import com.nhattien.service.ProductService;
 import com.nhattien.service.UserService;
-import com.nhattien.untils.Utils;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -62,6 +65,9 @@ public class AppController {
 
 	@Autowired
 	private OrderService serviceOrder;
+	
+	@Autowired
+	private OrderDetailService serviceOrderDetail;
 
 	@RequestMapping(value = { "/", "/login" })
 	public String login(@RequestParam(required = false) String message, final Model model) {
@@ -151,7 +157,8 @@ public class AppController {
 		model.addAttribute("pro", product);
 		return "view_product";
 	}
-
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping("/product/new")
 	public String showNewProductPage(Model model) {
 		Product product = new Product();
@@ -159,7 +166,8 @@ public class AppController {
 
 		return "new_product";
 	}
-
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/product/save", method = RequestMethod.POST)
 	public String saveProduct(@ModelAttribute("product") Product product, BindingResult result,
 			RedirectAttributes redirect) {
@@ -187,85 +195,127 @@ public class AppController {
 	public @ResponseBody String deleteProduct(@PathVariable int id) {
 		return service.delete(id);
 	}
-
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping("/order")
 	public String showOrder(Model model) {
 		List<Order> orders = serviceOrder.findAll();
 		model.addAttribute("listOrders", orders);
 		return "list_order";
 	}
-
-	@RequestMapping("/addProduct")
-	public String listProductHandler(HttpServletRequest request, Model model,
-			@RequestParam(value = "id", defaultValue = "") int id) {
-		Product product = null;
-		if (id != 0) {
-			product = service.get(id);
-		}
-		if (product != null) {
-			CartInfo cartInfo = Utils.getCartInSession(request);
-			ProductInfo productInfo = new ProductInfo(product);
-			cartInfo.removeProduct(productInfo);
-		}
-		return "redirect:/cart";
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping("/orderdetail/{id}")
+	public String showOrderDetail(Model model,@PathVariable("id") int id) {
+		Order order = serviceOrder.findById(id);
+	//	OrderDetail orderDetails = serviceOrderDetail.findByOrder(order);
+		List<OrderDetail> orderDetails = serviceOrderDetail.findByOrder(id);
+		order.setOrderDetails(orderDetails);
+		model.addAttribute("order", order);
+	//	model.addAttribute("listOrderDetails", orderDetails);
+		return "list_detail";
 	}
-
-	@RequestMapping(value = { "/cart" }, method = RequestMethod.POST)
-	public String cartUpdateQty(HttpServletRequest request, Model model,
-			@ModelAttribute("cartForm") CartInfo cartForm) {
-		CartInfo cartInfo = Utils.getCartInSession(request);
-		cartInfo.updateQuantity(cartForm);
-		return "redirect:/cart";
-	}
-
-	@RequestMapping(value = { "/cart" }, method = RequestMethod.GET)
-	public String cartHandler(HttpServletRequest request, Model model) {
-		CartInfo myCart = Utils.getCartInSession(request);
-		model.addAttribute("cartForm", myCart);
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping("/cart")
+	public String showCart(Model model, HttpSession session) {
+		model.addAttribute("total", sumPrice(session));
 		return "cart";
 	}
 
-	@RequestMapping(value = { "/cartConfirmation" }, method = RequestMethod.GET)
-	public String cartConfirmationReview(HttpServletRequest request, Model model) {
-		CartInfo cartInfo = Utils.getCartInSession(request);
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/cart/{id}", method = RequestMethod.GET)
+	public String addProduct(@PathVariable(name = "id") int id, Model model, HttpSession session) {
+		if (session.getAttribute("cart") == null) {
+			List<Item> cart = new ArrayList<Item>();
+			cart.add(new Item(service.get(id), 1));
+			session.setAttribute("cart", cart);
+		} else {
+			@SuppressWarnings("unchecked")
+			List<Item> cart = (List<Item>) session.getAttribute("cart");
+			int index = isExists(id, cart);
+			if (index == -1) {
+				cart.add(new Item(service.get(id), 1));
+			} else {
+				int quantity = cart.get(index).getQuantity() + 1;
+				cart.get(index).setQuantity(quantity);
+			}
 
-		if (cartInfo == null || cartInfo.isEmpty()) {
-			return "redirect:/cart";
 		}
-		model.addAttribute("myCart", cartInfo);
-		return "cartConfirmation";
+		return "redirect:/cart";
 	}
 
-	@RequestMapping(value = { "/cartConfirmation" }, method = RequestMethod.POST)
-	public String cartConfirmationSave(HttpServletRequest request, Model model) {
-		CartInfo cartInfo = Utils.getCartInSession(request);
-
-		if (cartInfo.isEmpty()) {
-			return "redirect:/cart";
+	private int isExists(int id, List<Item> cart) {
+		for (int i = 0; i < cart.size(); i++) {
+			if (cart.get(i).getProduct().getId() == id) {
+				return i;
+			}
 		}
-
-		try {
-			serviceOrder.saveOrder(cartInfo);
-		} catch (Exception e) {
-
-			return "cartConfirmation";
+		return -1;
+	}
+	
+	private double sumPrice(HttpSession session) {
+		@SuppressWarnings("unchecked")
+		List<Item> cart = (List<Item>) session.getAttribute("cart");
+		double s = 0;
+		if(cart != null) {
+			for (Item item: cart) {
+				s += item.getQuantity() * item.getProduct().getPrice();
+			}
 		}
-		// Xóa giỏ hàng khỏi session.
-		Utils.removeCartInSession(request);
-		Utils.storeLastOrderedCartInSession(request, cartInfo);
-		return "redirect:/cartFinalize";
+		return s;
 	}
 
-	@RequestMapping(value = { "/cartFinalize" }, method = RequestMethod.GET)
-	public String cartFinalize(HttpServletRequest request, Model model) {
-		CartInfo lastOrderedCart = Utils.getLastOrderedCartInSession(request);
-		if (lastOrderedCart == null) {
-			return "redirect:/cart";
-		}
-		model.addAttribute("lastOrderedCart", lastOrderedCart);
-		return "cartFinalize";
-	}
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/cart/remove/{id}", method = RequestMethod.GET)
+	public String removeProduct(@PathVariable(name = "id") int id, HttpSession session) {
 
+		@SuppressWarnings("unchecked")
+		List<Item> cart = (List<Item>) session.getAttribute("cart");
+		int index = isExists(id, cart);
+		cart.remove(index);
+		session.setAttribute("cart", cart);
+		return "redirect:/cart";
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/cart/update", method = RequestMethod.POST)
+	public String updateQuantity(HttpSession session, HttpServletRequest request) {
+		String[] quantities = request.getParameterValues("quantity");
+		@SuppressWarnings("unchecked")
+		List<Item> cart = (List<Item>) session.getAttribute("cart");
+		for (int i = 0; i < cart.size(); i++) {
+			cart.get(i).setQuantity(Integer.parseInt(quantities[i]));
+		}
+		session.setAttribute("cart", cart);
+		return "redirect:/cart";
+	}
+	
+	@RequestMapping(value = "/customer", method = RequestMethod.GET)
+	public String customerInfo(ModelMap model) {
+		model.put("customer", new Order());
+		return "customer";
+	}
+	
+	@RequestMapping(value = "/customer", method = RequestMethod.POST)
+	public String saveCustomerAndMakeOrder(HttpSession session, @ModelAttribute("customer") Order order, ModelMap model) {
+		order.setDateOrder(new Date());
+		order.setAmount(sumPrice(session));
+		serviceOrder.create(order);
+		@SuppressWarnings("unchecked")
+		List<Item> cart = (List<Item>) session.getAttribute("cart");
+		for(Item item: cart) {
+			OrderDetail orderDetail = new OrderDetail();
+			orderDetail.setAmount(item.getProduct().getPrice());
+			orderDetail.setQuantity(item.getQuantity());
+			orderDetail.setOrder(order);
+			orderDetail.setProduct(item.getProduct());
+			serviceOrderDetail.create(orderDetail);
+		}
+		session.removeAttribute("cart");
+		return "redirect:/order";
+	}
+	
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	public void export(HttpServletResponse response) throws IOException, JRException, SQLException {
 

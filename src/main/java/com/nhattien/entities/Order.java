@@ -19,7 +19,7 @@ public class Order {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@Column(name = "customer_name", length = 255, nullable = false)
 	private String customerName;
@@ -39,7 +39,7 @@ public class Order {
 	public Order() {
 	}
 	
-	public Order(Long id, String customerName, String customerAddress, Date dateOrder, List<OrderDetail> orderDetails,
+	public Order(int id, String customerName, String customerAddress, Date dateOrder, List<OrderDetail> orderDetails,
 			double amount) {
 		super();
 		this.id = id;
@@ -51,7 +51,7 @@ public class Order {
 	}
 
 
-	public Order(Long id, String customerName, String customerAddress, Date dateOrder, double amount) {
+	public Order(int id, String customerName, String customerAddress, Date dateOrder, double amount) {
 		super();
 		this.id = id;
 		this.customerName = customerName;
@@ -60,11 +60,11 @@ public class Order {
 		this.amount = amount;
 	}
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

@@ -7,7 +7,7 @@
 
 	<div class="container" style="margin-top: 80px;">
 		<div align="center">
-			<h1>Order Management</h1>
+			<h1>List Order</h1>
 
 		</div>
 		<th:block th:if="${#lists.isEmpty(listOrders)}">
@@ -30,20 +30,15 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="o : ${listOrders}">
-							<td th:text="${o.id}"></td>
-							<td th:text="${o.customer_name}"></td>
-							<td th:text="${o.customer_address}"></td>
-							<td th:text="${o.date_order}"></td>
-							<td th:text="${o.amount}"></td>
+						<tr th:each="order : ${listOrders}">
+							<td th:text="${order.id}"></td>
+							<td th:text="${order.customerName}"></td>
+							<td th:text="${order.customerAddress}"></td>
+							<td th:text="${order.dateOrder}"></td>
+							<td th:text="${order.amount}" style="color: red; font-size: 20px;"></td>
 							<td>
 								<div align="center">
-									<a th:href="@{'/order/' + ${order.id}}"> <i
-										class="fa fa-eye"></i></a> &nbsp;&nbsp;&nbsp; <a
-										th:href="@{'/order/edit/' + ${order.id}}"><i
-										class="fa fa-edit"></i></a> &nbsp;&nbsp;&nbsp; <a
-										th:href="@{'/order/delete/' + ${order.id}}"><i
-										class="fa fa-trash"></i></a>
+									<a th:href="@{'/orderdetail/' + ${order.id}}" style="color: green;	">View Detail</a>
 								</div>
 							</td>
 						</tr>
