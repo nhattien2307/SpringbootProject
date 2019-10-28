@@ -7,7 +7,9 @@
 
 	<div class="container" style="margin-top: 80px;">
 		<h1 align="center">Cart Info</h1>
+
 		<form method="post" th:action="${'/cart/update'}">
+			<p th:text="${msg}" style="color: red;"></p>
 		<table class="table">
 			<thead class="thead-dark">
 				<tr>

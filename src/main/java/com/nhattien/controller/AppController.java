@@ -208,11 +208,9 @@ public class AppController {
 	@RequestMapping("/orderdetail/{id}")
 	public String showOrderDetail(Model model,@PathVariable("id") int id) {
 		Order order = serviceOrder.findById(id);
-	//	OrderDetail orderDetails = serviceOrderDetail.findByOrder(order);
 		List<OrderDetail> orderDetails = serviceOrderDetail.findByOrder(id);
 		order.setOrderDetails(orderDetails);
 		model.addAttribute("order", order);
-	//	model.addAttribute("listOrderDetails", orderDetails);
 		return "list_detail";
 	}
 	
@@ -280,15 +278,23 @@ public class AppController {
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/cart/update", method = RequestMethod.POST)
-	public String updateQuantity(HttpSession session, HttpServletRequest request) {
+	public ModelAndView updateQuantity(HttpSession session, HttpServletRequest request, RedirectAttributes redirect) {
+		ModelAndView modelAndView = new ModelAndView();
 		String[] quantities = request.getParameterValues("quantity");
 		@SuppressWarnings("unchecked")
 		List<Item> cart = (List<Item>) session.getAttribute("cart");
 		for (int i = 0; i < cart.size(); i++) {
-			cart.get(i).setQuantity(Integer.parseInt(quantities[i]));
+			if(cart.get(i).getProduct().getQuantity() < Integer.parseInt(quantities[i]))
+			{
+				redirect.addFlashAttribute("msg", "Quantity of products is not enough!");
+			}
+			else{
+				cart.get(i).setQuantity(Integer.parseInt(quantities[i]));
+			}
 		}
 		session.setAttribute("cart", cart);
-		return "redirect:/cart";
+		modelAndView.setViewName("redirect:/cart");
+		return modelAndView ;
 	}
 	
 	@RequestMapping(value = "/customer", method = RequestMethod.GET)
@@ -310,6 +316,10 @@ public class AppController {
 			orderDetail.setQuantity(item.getQuantity());
 			orderDetail.setOrder(order);
 			orderDetail.setProduct(item.getProduct());
+			int newQuantity = item.getProduct().getQuantity() - item.getQuantity();
+			Product product = item.getProduct();
+			product.setQuantity(newQuantity);
+			service.save(product);
 			serviceOrderDetail.create(orderDetail);
 		}
 		session.removeAttribute("cart");
